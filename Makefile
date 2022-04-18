@@ -10,11 +10,16 @@
 #************************************************************************/#
 # /*@{*/
 
+VERSION = 1
+SUBLEVEL = 0
+PATCHLEVEL = 12
+#EXTRAVERSION = -rc1
+
 #CROSS_COMPILE = 
 ARCH = i386
 AS 	= $(CROSS_COMPILE)as
 LD 	= $(CROSS_COMPILE)ld
-CC 	= $(CROSS_COMPILE)g++
+CC 	= $(CROSS_COMPILE)gcc
 CPP = $(CC) -E
 AR 	= $(CROSS_COMPILE)ar
 NM 	= $(CROSS_COMPILE)nm
@@ -24,16 +29,20 @@ OBJCOPY = $(CROSS_COMPILE)objcopy
 OBJDUMP = $(CROSS_COMPILE)objdump
 
 BUILD_DIR = bin
+VERSION_DIR = version
+
+TARGET := test 
+TARGET_PREFIX := $(shell echo $(TARGET) | tr [a-z] [A-Z])
 
 export AS LD CC CPP AR NM
 export STRIP OBJCOPY OBJDUMP
 
 
-CFLAGS := -Wall -O2 -g 
+CFLAGS := -Wall -O2 -g -I $(shell pwd)/version
 
 ifeq (i386,$(ARCH))
 	CFLAGS += -I $(shell pwd)/3rds/i386/include/bsl -I $(shell pwd)/3rds/i386/include/mysql
-	LDFLAGS := -lm -L $(shell pwd)/3rds/i386/lib/bsl -lbsl  -lrt -ldl -lpthread -lstdc++ 
+	LDFLAGS := -lm -L $(shell pwd)/3rds/i386/lib/bsl -lbsl  -lrt -ldl -lpthread -lstdc++ -L /usr/lib64/mysql/ -lmysqlclient 
 endif
 
 ifeq (hisiv3536,$(ARCH))
@@ -53,25 +62,42 @@ export CFLAGS LDFLAGS LIB
 TOPDIR := $(shell pwd)
 export TOPDIR
 
-TARGET := test 
+ifneq "$(SUBLEVEL)" ""
+	$(TARGET_PREFIX)_VERSION = $(VERSION).$(SUBLEVEL).$(PATCHLEVEL).$(shell date +"%Y%m%d")  #$(shell date +"%Y%M%d %H%M%S")      #$(EXTRAVERSION)
+else
+	$(TARGET_PREFIX)_VERSION = $(VERSION).$(PATCHLEVEL)$(EXTRAVERSION)
+endif
 
+VERSION_FILE := version.h
 
 obj-y += main/
 
-all: 
+all: $(VERSION_FILE)   
 	$(shell [ -d ${BUILD_DIR} ] || mkdir -p $(BUILD_DIR))
 	make -C ./  -f $(TOPDIR)/Makefile.build
 	$(CC) $(LDFLAGS) -o $(shell pwd)/$(BUILD_DIR)/$(TARGET) built-in.o  $(LDFLAGS) $(LIB) 
 	@echo "$(TARGET) run in $(ARCH) platform  compiled success."
 
+.PHONY:
+$(VERSION_FILE):  
+	$(shell [ -d ${VERSION_DIR} ] || mkdir -p $(VERSION_DIR)) 
+	@echo $(TARGET_PREFIX)  $(TEST_VERSION)
+	@(printf '#define $(TARGET_PREFIX)_VERSION "$(TARGET) %s "\n' "$($(TARGET_PREFIX)_VERSION)") > $(VERSION_DIR)/$@
+	@date +'#define $(TARGET_PREFIX)_DATE  "%b %d %C%y"' >> $(VERSION_DIR)/$@
+	@date +'#define $(TARGET_PREFIX)_TIME "%T"' >> $(VERSION_DIR)/$@
+	@echo \#define $(TARGET_PREFIX)_COMPILE_BY \"`whoami`\" >> $(VERSION_DIR)/$@
+	@echo \#define $(TARGET_PREFIX)_COMPILE_HOST \"`hostname`\" >> $(VERSION_DIR)/$@
+
+.PHONY:
 clean:
 	rm -f $(rm shell find -name "*.o")
 	rm -f $(shell pwd)/bin/$(TARGET)
+	rm -rf $(shell pwd)/$(VERSION_DIR)
 
 distclean:
 	rm -f $(shell find -name "*.o")
 	rm -f $(shell find -name "*.d")
 	rm -f $(shell pwd)/bin/$(TARGET)
 	rm -f $(shell pwd)/bin/all
-	rm -rf $(shell pwd)/bin
+	rm -rf $(shell pwd)/$(VERSION_DIR)
 				
