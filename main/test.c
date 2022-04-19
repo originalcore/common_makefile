@@ -6,19 +6,26 @@
  * ========== ======= ========= =======================================
  * 2018-07-06 V1.0    weihui.jia   Create
  *
- * @Copyright (C)  2018  dixin.Co.Ltd all right reserved
+ * @Copyright (C)  2018  orignal.Co.Ltd all right reserved
  ***********************************************************************/
 /*@{*/
+
 #include <stdio.h>
 #include "version.h"
 
-const char version_string[] = TEST_VERSION " " TEST_COMPILE_BY "@" TEST_COMPILE_HOST" (" TEST_DATE " - " TEST_TIME ")";
+
+void print_version(void)
+{
+	printf("\n\n================================================================================\n");
+	printf("********************************************************************************\n");
+	printf ("%s\n", version_string);
+	printf("********************************************************************************\n");
+	printf("================================================================================\n\n");
+}
 
 int main(int argc, const char *argv[])
 {
-	printf("\n\n*********************************************************************\n");
-	printf ("\n%s\n", version_string);
-	printf("\n*********************************************************************\n\n");
+	print_version();
 
 	return 0;
 }

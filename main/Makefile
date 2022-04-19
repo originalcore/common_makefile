@@ -6,7 +6,7 @@
 # * ========== ======= ========= =========================================#
 # * 2018-07-06 V1.0    weihui.jia   Create                                #
 # *                                                                       #
-# * @Copyright (C)  2018  dixin.Co.Ltd all right reserved                 #
+# * @Copyright (C)  2018  original.Co.Ltd all right reserved              #
 #************************************************************************/#
 # /*@{*/
 

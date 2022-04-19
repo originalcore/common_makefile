@@ -6,14 +6,14 @@
 # * ========== ======= ========= =========================================#
 # * 2018-07-06 V1.0    weihui.jia   Create                                #
 # *                                                                       #
-# * @Copyright (C)  2018  dixin.Co.Ltd all right reserved                 #
+# * @Copyright (C)  2018  originl.Co.Ltd all right reserved               #
 #************************************************************************/#
 # /*@{*/
 
 VERSION = 1
 SUBLEVEL = 0
 PATCHLEVEL = 12
-#EXTRAVERSION = -rc1
+EXTRAVERSION = -rc1
 
 #CROSS_COMPILE = 
 ARCH = i386
@@ -81,12 +81,41 @@ all: $(VERSION_FILE)
 .PHONY:
 $(VERSION_FILE):  
 	$(shell [ -d ${VERSION_DIR} ] || mkdir -p $(VERSION_DIR)) 
-	@echo $(TARGET_PREFIX)  $(TEST_VERSION)
-	@(printf '#define $(TARGET_PREFIX)_VERSION "$(TARGET) %s "\n' "$($(TARGET_PREFIX)_VERSION)") > $(VERSION_DIR)/$@
+	@echo $(TARGET_PREFIX)  $($(TARGET_PREFIX)_VERSION)
+	@echo "/***********************************************************************" > $(VERSION_DIR)/$@ 
+	@echo " * @file      version.h" >> $(VERSION_DIR)/$@ 
+	@echo " * @brief     h file" >> $(VERSION_DIR)/$@ 
+	@echo " * @history" >> $(VERSION_DIR)/$@ 
+	@echo " * Date       Version Author    description" >> $(VERSION_DIR)/$@ 
+	@echo " * ========== ======= ========= =======================================" >> $(VERSION_DIR)/$@ 
+	@date +' * %Y-%m-%d V$(VERSION).$(SUBLEVEL).$(PATCHLEVEL).$(EXTRAVERSION)  weihui.jia   Create' >> $(VERSION_DIR)/$@
+	@echo " *" >> $(VERSION_DIR)/$@ 
+	@echo " * @Copyright (C)  2020  dixin.Co.Ltd all right reserved" >>$(VERSION_DIR)/$@
+	@echo "***********************************************************************/" >> $(VERSION_DIR)/$@ 
+	@echo "/*@{*/" >> $(VERSION_DIR)/$@ 
+	@echo "" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
+	@echo "#ifndef __VERSION_H" >> $(VERSION_DIR)/$@
+	@echo "#define __VERSION_H" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
+	@echo "#ifdef __cplusplus" >> $(VERSION_DIR)/$@
+	@echo "extern \"C\" {" >> $(VERSION_DIR)/$@
+	@echo "#endif" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
+	@(printf '#define $(TARGET_PREFIX)_VERSION "$(TARGET) %s "\n' "$($(TARGET_PREFIX)_VERSION)") >> $(VERSION_DIR)/$@
 	@date +'#define $(TARGET_PREFIX)_DATE  "%b %d %C%y"' >> $(VERSION_DIR)/$@
 	@date +'#define $(TARGET_PREFIX)_TIME "%T"' >> $(VERSION_DIR)/$@
 	@echo \#define $(TARGET_PREFIX)_COMPILE_BY \"`whoami`\" >> $(VERSION_DIR)/$@
 	@echo \#define $(TARGET_PREFIX)_COMPILE_HOST \"`hostname`\" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
+	@echo "const char version_string[] = $(TARGET_PREFIX)_VERSION \" \" $(TARGET_PREFIX)_COMPILE_BY \"@\" $(TARGET_PREFIX)_COMPILE_HOST\" (\" $(TARGET_PREFIX)_DATE \" - \" $(TARGET_PREFIX)_TIME \")\";" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
+	@echo "#ifdef __cplusplus" >> $(VERSION_DIR)/$@
+	@echo "}" >> $(VERSION_DIR)/$@
+	@echo "#endif" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
+	@echo "#endif" >> $(VERSION_DIR)/$@
+	@echo "" >> $(VERSION_DIR)/$@
 
 .PHONY:
 clean:
